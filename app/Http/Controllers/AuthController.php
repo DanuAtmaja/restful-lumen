@@ -79,8 +79,26 @@ class AuthController extends Controller
             $user->password = app('hash')->make($password);
 
             if ($user-save()){
-                return 'user created successfully';
+                return $this->login($request);
             }
+        }catch (\Exception $exception){
+            return response()->json([
+               'status' => 'error',
+                'message' => $exception->getMessage()
+            ]);
+        }
+    }
+
+    public function logout(Request $request){
+        try {
+            auth()->user()->tokens()->each(functio ($token){
+               $token->delete()
+            });
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Logged out successfully'
+            ]);
         }catch (\Exception $exception){
             return response()->json([
                'status' => 'error',
